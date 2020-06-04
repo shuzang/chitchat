@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type User struct {
 	Id        int
@@ -16,6 +19,7 @@ func (user *User) CreateSession() (session Session, err error) {
 	statement := "INSERT INTO sessions (uuid, email, user_id, created_at) values (?,?,?,?)"
 	stmtin, err := Db.Prepare(statement)
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 	defer stmtin.Close()
@@ -95,6 +99,7 @@ func (user *User) Create() (err error) {
 	statement := "INSERT INTO users (uuid, name, email, password, created_at) values (?,?,?,?,?)"
 	stmtin, err := Db.Prepare(statement)
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 	defer stmtin.Close()
@@ -104,6 +109,7 @@ func (user *User) Create() (err error) {
 
 	stmtout, err := Db.Prepare("SELECT id,uuid,created_at FROM users where uuid = ?")
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 	defer stmtout.Close()

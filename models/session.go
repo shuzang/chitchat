@@ -4,8 +4,8 @@ import "time"
 
 type Session struct {
 	Id        int
-	Uuid      int
-	Email     int
+	Uuid      string
+	Email     string
 	UserId    int
 	CreatedAt time.Time
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"strconv"
 
 	"github.com/shuzang/chitchat/models"
 )
@@ -13,9 +12,8 @@ import (
 //通过 Cookie 判断用户是否已登录
 func session(writer http.ResponseWriter, request *http.Request) (sess models.Session, err error) {
 	cookie, err := request.Cookie("_cookie")
-	sid, _ := strconv.Atoi(cookie.Value)
 	if err == nil {
-		sess = models.Session{Uuid: sid}
+		sess = models.Session{Uuid: cookie.Value}
 		if ok, _ := sess.Check(); !ok {
 			err = errors.New("Invalid session")
 		}
@@ -47,5 +45,5 @@ func generateHTML(writer http.ResponseWriter, data interface{}, filenames ...str
 
 // 返回版本号
 func Version() string {
-	return "0.1"
+	return "0.1.j"
 }

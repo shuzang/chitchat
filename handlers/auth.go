@@ -3,7 +3,6 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/shuzang/chitchat/models"
 )
@@ -46,11 +45,12 @@ func Authenticate(writer http.ResponseWriter, request *http.Request) {
 	if user.Password == models.Encrypt(request.PostFormValue("password")) {
 		session, err := user.CreateSession()
 		if err != nil {
+			fmt.Println(err)
 			fmt.Println("Cannot create session")
 		}
 		cookie := http.Cookie{
 			Name:     "_cookie",
-			Value:    strconv.Itoa(session.Uuid),
+			Value:    session.Uuid,
 			HttpOnly: true,
 		}
 		http.SetCookie(writer, &cookie)
@@ -65,8 +65,7 @@ func Logout(writer http.ResponseWriter, request *http.Request) {
 	cookie, err := request.Cookie("_cookie")
 	if err != http.ErrNoCookie {
 		fmt.Println("Failed to get cookie")
-		sid, _ := strconv.Atoi(cookie.Value)
-		session := models.Session{Uuid: sid}
+		session := models.Session{Uuid: cookie.Value}
 		session.DeleteByUuid()
 	}
 	http.Redirect(writer, request, "/", 302)
