@@ -4,27 +4,31 @@ import (
 	"log"
 	"net/http"
 
+	. "github.com/shuzang/chitchat/config"
 	. "github.com/shuzang/chitchat/routes"
 )
 
 func main() {
-	startWebServer("8080")
+	startWebServer()
 }
 
 // 通过指定端口启动服务器
-func startWebServer(port string) {
-	r := NewRouter()
+func startWebServer() {
+	// 在入口位置初始化全局配置
+	config := LoadConfig()
+	r := NewRouter() // 通过 router.go 中定义的路由器来分发请求
 
-	assets := http.FileServer(http.Dir("public"))
+	// 处理静态资源文件
+	assets := http.FileServer(http.Dir(config.App.Static))
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", assets))
 
-	http.Handle("/", r) // 通过 router.go 中定义的路由器进行分发
+	http.Handle("/", r)
 
-	log.Println("Starting HTTP server at " + port)
-	err := http.ListenAndServe(":"+port, nil)
+	log.Println("Starting HTTP service at " + config.App.Address)
+	err := http.ListenAndServe(config.App.Address, nil)
 
 	if err != nil {
-		log.Println("An error occured starting HTTP listener at port " + port)
+		log.Println("An error occured starting HTTP listener at " + config.App.Address)
 		log.Println("Error: " + err.Error())
 	}
 }
