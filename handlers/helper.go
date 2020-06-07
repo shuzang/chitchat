@@ -9,12 +9,20 @@ import (
 	"os"
 	"strings"
 
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	. "github.com/shuzang/chitchat/config"
 	"github.com/shuzang/chitchat/models"
 )
 
 var logger *log.Logger
+var config *Configuration
+var localizer *i18n.Localizer
 
 func init() {
+	// 获取全局配置实例
+	config = LoadConfig()
+	// 获取本地化实例
+	localizer = i18n.NewLocalizer(config.LocaleBundle, config.App.Language)
 	file, err := os.OpenFile("logs/chitchat.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalln("Failed to open log file", err)
