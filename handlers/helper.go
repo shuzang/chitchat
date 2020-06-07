@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	. "github.com/shuzang/chitchat/config"
@@ -42,25 +43,16 @@ func session(writer http.ResponseWriter, request *http.Request) (sess models.Ses
 	return
 }
 
-//解析 HTML 模板（应对需要传入多个模板文件的情况，避免重复编写模板代码）
-func parseTemplateFiles(filenames ...string) (t *template.Template) {
-	var files []string
-	t = template.New("layout")
-	for _, file := range filenames {
-		files = append(files, fmt.Sprintf("views/%s.html", file))
-	}
-	t = template.Must(t.ParseFiles(files...))
-	return
-}
-
 // 生成响应 HTML
 func generateHTML(writer http.ResponseWriter, data interface{}, filenames ...string) {
 	var files []string
 	for _, file := range filenames {
-		files = append(files, fmt.Sprintf("views/%s.html", file))
+		files = append(files, fmt.Sprintf("views/%s/%s.html", config.App.Language, file))
 	}
 
-	template := template.Must(template.ParseFiles(files...))
+	funcMap := template.FuncMap{"fdate": formatDate}
+	t := template.New("layout").Funcs(funcMap)
+	template := template.Must(t.ParseFiles(files...))
 	template.ExecuteTemplate(writer, "layout", data)
 }
 
@@ -89,4 +81,10 @@ func warning(args ...interface{}) {
 func error_message(writer http.ResponseWriter, request *http.Request, msg string) {
 	url := []string{"/err?msg", msg}
 	http.Redirect(writer, request, strings.Join(url, ""), 302)
+}
+
+// 日期格式化辅助函数
+func formatDate(t time.Time) string {
+	datetime := "2006-01-02 15:04:05"
+	return t.Format(datetime)
 }
